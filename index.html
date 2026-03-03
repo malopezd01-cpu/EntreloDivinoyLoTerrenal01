@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Entre lo Divino y lo Terrenal</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4.1.0/turn.min.js"></script>
+
+<style>
+body{
+margin:0;
+background:#111;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+#flipbook{
+width:900px;
+height:600px;
+}
+
+#flipbook img{
+width:100%;
+height:100%;
+}
+</style>
+</head>
+
+<body>
+
+<div id="flipbook"></div>
+
+<script>
+
+let total = 120; // cambia este número si tu libro tiene más páginas
+
+for(let i=1;i<=total;i++){
+
+let num = i.toString().padStart(2,'0');
+
+let img = "LIBRO-"+num+".png";
+
+$("#flipbook").append('<div><img src="'+img+'"></div>');
+
+}
+
+$("#flipbook").turn({
+width:900,
+height:600,
+autoCenter:true
+});
+
+</script>
+
+</body>
+</html>
