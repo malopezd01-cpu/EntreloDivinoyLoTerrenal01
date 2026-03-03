@@ -1,59 +1,293 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Entre lo Divino y lo Terrenal</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Entre lo Divino y lo Terrenal</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4.1.0/turn.min.js"></script>
+  <!-- Turn.js (flipbook) + jQuery -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4.1.0/turn.min.js"></script>
 
-<style>
-body{
-margin:0;
-background:#111;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-}
+  <style>
+    :root{
+      --bg:#0f0f10;
+      --card:#161618;
+      --text:#f2f2f3;
+      --muted:#b8b8bd;
+      --shadow: 0 20px 60px rgba(0,0,0,.45);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 700px at 50% 30%, #1a1a1d 0%, var(--bg) 60%);
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
 
-#flipbook{
-width:900px;
-height:600px;
-}
+    header{
+      padding:14px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .title{
+      display:flex; flex-direction:column; gap:2px;
+    }
+    .title h1{
+      margin:0; font-size:15px; font-weight:700; letter-spacing:.2px;
+    }
+    .title span{color:var(--muted); font-size:12px}
 
-#flipbook img{
-width:100%;
-height:100%;
-}
-</style>
+    .controls{
+      display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+    }
+    button{
+      border:0;
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:600;
+      font-size:12px;
+      transition:.15s ease;
+      display:inline-flex; align-items:center; gap:8px;
+    }
+    button:hover{background: rgba(255,255,255,.14)}
+    button:active{transform: scale(.98)}
+    button.secondary{background: rgba(255,255,255,.06); color: var(--muted)}
+    .pill{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08);
+      padding:8px 10px;
+      border-radius:999px;
+      color: var(--muted);
+      font-size:12px;
+      display:flex; align-items:center; gap:8px;
+    }
+    .pill input{
+      width:70px;
+      background: transparent;
+      border:0;
+      outline:none;
+      color:var(--text);
+      font-weight:700;
+      text-align:center;
+    }
+
+    main{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:10px 16px 18px;
+    }
+    .stage{
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      padding:14px;
+      box-shadow: var(--shadow);
+      width: min(1100px, 96vw);
+    }
+
+    /* Contenedor de flipbook */
+    #book-wrap{
+      position:relative;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      overflow:hidden;
+      border-radius: calc(var(--radius) - 6px);
+      background: #0c0c0d;
+      padding: 12px;
+    }
+
+    #flipbook{
+      width: 1000px;
+      height: 650px;
+    }
+
+    /* Página */
+    .page{
+      background:#111;
+    }
+    .page img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:block;
+      background:#000;
+    }
+
+    /* Estado */
+    .status{
+      margin-top:10px;
+      color: var(--muted);
+      font-size:12px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px){
+      #flipbook{ width: 92vw; height: 62vw; max-height: 70vh; }
+    }
+    @media (max-width: 520px){
+      header{align-items:flex-start; flex-direction:column}
+      .controls{width:100%}
+      button{flex:1; justify-content:center}
+    }
+  </style>
 </head>
 
 <body>
+  <header>
+    <div class="title">
+      <h1>Entre lo Divino y lo Terrenal</h1>
+      <span>Flipbook • GitHub Pages</span>
+    </div>
 
-<div id="flipbook"></div>
+    <div class="controls">
+      <button id="prev">⬅︎ Anterior</button>
+      <button id="next">Siguiente ➜</button>
 
-<script>
+      <div class="pill" title="Ir a página">
+        Página
+        <input id="goto" type="number" min="1" step="1" />
+        / <span id="totalLabel">168</span>
+      </div>
 
-let total = 120; // cambia este número si tu libro tiene más páginas
+      <button id="zoomOut" class="secondary">➖ Zoom</button>
+      <button id="zoomIn" class="secondary">➕ Zoom</button>
+      <button id="fullscreen" class="secondary">⛶ Pantalla completa</button>
+    </div>
+  </header>
 
-for(let i=1;i<=total;i++){
+  <main>
+    <div class="stage">
+      <div id="book-wrap">
+        <div id="flipbook"></div>
+      </div>
 
-let num = i.toString().padStart(2,'0');
+      <div class="status">
+        <div id="pageInfo">Cargando…</div>
+        <div>Tip: usa ← → del teclado para pasar páginas</div>
+      </div>
+    </div>
+  </main>
 
-let img = "LIBRO-"+num+".png";
+  <script>
+    // ===== CONFIG =====
+    const TOTAL_PAGINAS = 168;
 
-$("#flipbook").append('<div><img src="'+img+'"></div>');
+    // Formato exacto: LIBRO-01.png ... LIBRO-168.png
+    function nombreArchivo(n){
+      const s = String(n).padStart(2,'0'); // 01..99
+      // Para 100+ queda "100" (padStart no lo cambia)
+      return `LIBRO-${String(n).padStart(2,'0')}.png`;
+    }
 
-}
+    // ===== BUILD PAGES =====
+    const $flipbook = $("#flipbook");
+    $("#totalLabel").text(TOTAL_PAGINAS);
+    $("#goto").attr("max", TOTAL_PAGINAS).val(1);
 
-$("#flipbook").turn({
-width:900,
-height:600,
-autoCenter:true
-});
+    for(let i=1; i<=TOTAL_PAGINAS; i++){
+      const file = nombreArchivo(i);
+      const $page = $(`
+        <div class="page">
+          <img loading="lazy" alt="Página ${i}" src="${file}">
+        </div>
+      `);
+      $flipbook.append($page);
+    }
 
-</script>
+    // ===== INIT TURN.JS =====
+    let zoom = 1;
 
+    function setBookSize(){
+      // Ajuste automático (doble página)
+      const wrap = document.getElementById("book-wrap");
+      const maxW = wrap.clientWidth - 24;
+      const maxH = window.innerHeight * 0.75;
+
+      // Mantén proporción aproximada (1.55) y escala por zoom
+      let w = Math.min(1000, maxW) * zoom;
+      let h = Math.min(650, maxH) * zoom;
+
+      // Si sobrepasa, recorta proporcionalmente
+      const ratio = 1000/650;
+      if (w/h > ratio) w = h * ratio;
+      else h = w / ratio;
+
+      $flipbook.turn("size", Math.floor(w), Math.floor(h));
+    }
+
+    function updateInfo(){
+      const current = $flipbook.turn("page");
+      $("#pageInfo").text(`Página ${current} de ${TOTAL_PAGINAS}`);
+      $("#goto").val(current);
+    }
+
+    $flipbook.turn({
+      autoCenter: true,
+      gradients: true,
+      acceleration: true,
+      pages: TOTAL_PAGINAS,
+      elevation: 60,
+      when: {
+        turned: function() { updateInfo(); }
+      }
+    });
+
+    // Ajusta tamaño al iniciar
+    setTimeout(() => { setBookSize(); updateInfo(); }, 250);
+    window.addEventListener("resize", () => setBookSize());
+
+    // ===== CONTROLS =====
+    $("#prev").on("click", () => $flipbook.turn("previous"));
+    $("#next").on("click", () => $flipbook.turn("next"));
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft") $flipbook.turn("previous");
+      if (e.key === "ArrowRight") $flipbook.turn("next");
+    });
+
+    $("#goto").on("change", function(){
+      let p = parseInt(this.value || "1", 10);
+      p = Math.max(1, Math.min(TOTAL_PAGINAS, p));
+      $flipbook.turn("page", p);
+    });
+
+    $("#zoomIn").on("click", () => {
+      zoom = Math.min(1.6, +(zoom + 0.1).toFixed(2));
+      setBookSize();
+    });
+
+    $("#zoomOut").on("click", () => {
+      zoom = Math.max(0.8, +(zoom - 0.1).toFixed(2));
+      setBookSize();
+    });
+
+    $("#fullscreen").on("click", async () => {
+      const el = document.documentElement;
+      try{
+        if (!document.fullscreenElement) await el.requestFullscreen();
+        else await document.exitFullscreen();
+        setTimeout(setBookSize, 250);
+      }catch(err){
+        alert("Tu navegador bloqueó pantalla completa.");
+      }
+    });
+  </script>
 </body>
 </html>
